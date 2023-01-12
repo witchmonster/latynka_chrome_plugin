@@ -2,39 +2,24 @@
 
 var latynkaTranslationModes = ['translate', 'disabled'];
 
-// chrome.action.onClicked.addListener(function (tab) {
+chrome.action.onClicked.addListener(function (tab) {
 
-//   console.log('old latynkaTranslationMode: ' + localStorage['latynkaTranslationMode']);
+    // rotate the translation mode
+    chrome.storage.local.get('latynkaTranslationMode').then((currentMode) => {
+        currentMode = currentMode.latynkaTranslationMode;
+        var currentModeIndex = latynkaTranslationModes.indexOf(currentMode);
+        if (currentModeIndex < 0) currentModeIndex = 0;
+        currentModeIndex = (currentModeIndex + 1) % latynkaTranslationModes.length;
+        currentMode = latynkaTranslationModes[currentModeIndex];
+        // console.error(JSON.stringify(currentMode));
+        chrome.storage.local.set({ 'latynkaTranslationMode': currentMode }).then(() => {
+            chrome.tabs.query({ active: true, currentWindow: true }, function (arrayOfTabs) {
+                chrome.tabs.reload(arrayOfTabs[0].id);
+            });
+        });
+        chrome.action.setIcon({
+            path: currentMode == 'disabled' ? "images/icon_invert.png" : "images/icon.png"
+        });
+    });
 
-//   // rotate the translation mode
-//   var currentMode = localStorage['latynkaTranslationMode'];
-//   var currentModeIndex = latynkaTranslationModes.indexOf(currentMode);
-//   if (currentModeIndex < 0) currentModeIndex = 0;
-//   currentModeIndex = (currentModeIndex + 1) % latynkaTranslationModes.length;
-//   currentMode = latynkaTranslationModes[currentModeIndex];
-//   localStorage['latynkaTranslationMode'] = currentMode;
-
-//   console.log('new latynkaTranslationMode: ' + localStorage['latynkaTranslationMode']);
-
-//   chrome.tabs.query({ active: true, currentWindow: true }, function (arrayOfTabs) {
-//     chrome.tabs.reload(arrayOfTabs[0].id);
-//   });
-
-// });
-
-// chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
-//   switch (message.method) {
-//     // ...
-//     case "getLocalStorage":
-//       if (message.key) { // Single key provided
-//         sendResponse({ data: localStorage[message.key] });
-//       }
-//       else if (message.keys) { // An array of keys requested
-//         var data = {};
-//         message.keys.forEach(function (key) { data[key] = localStorage[key]; })
-//         sendResponse({ data: data });
-//       }
-//       break;
-//     // ...
-//   }
-// });
+});

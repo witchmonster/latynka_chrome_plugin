@@ -2,6 +2,8 @@
 
 // ------------------------------------ cyrillic to latin ------------------------------------ 
 
+var latynkaTranslationMode;
+
 const lowerCaseVowels = {
   'а': 'a',
   'е': 'e',
@@ -356,40 +358,32 @@ var translateAll = function () {
     .each(function (i, textNode) {
       textNode.textContent = cyrToLat(textNode.textContent);
     });
+
+  return;
 };
 
-translateAll();
+var loadLatynkaTranslationMode = function (callback) {
+  chrome.storage.local.get('latynkaTranslationMode').then((currentMode) => {
+    return callback(currentMode.latynkaTranslationMode);
+  });
+};
 
+loadLatynkaTranslationMode(function (newLatynkaTranslationMode) {
+  var latynkaTranslationMode = newLatynkaTranslationMode;
+  if (latynkaTranslationMode == 'translate') {
+    return translateAll();
+  }
+});
 
-// var loadLatynkaTranslationMode = function (callback) {
-//   chrome.runtime.sendMessage({
-//     method: "getLocalStorage",
-//     keys: ["latynkaTranslationMode"]
-//   },
-//     function (response) {
-//       var latynkaTranslationMode = response.data.latynkaTranslationMode;
-//       console.log('latynkaTranslationMode: ' + latynkaTranslationMode);
-//       callback(latynkaTranslationMode);
-//     });
-// };
-
-// loadLatynkaTranslationMode(function (newLatynkaTranslationMode) {
-// var latynkaTranslationMode = newLatynkaTranslationMode;
-// if (latynkaTranslationMode !== 'disabled') {
-// translateAll();
-  // }
-// });
-
-
-// document.addEventListener('visibilitychange', function () {
-//   if (!document.hidden) {
-//     // tab was just focused, get the latynka translation mode and see if it changed
-//     loadLatynkaTranslationMode(function (newLatynkaTranslationMode) {
-//       if (latynkaTranslationMode != newLatynkaTranslationMode) {
-//         // it changed... reload the page
-//         window.location.reload();
-//       }
-//     });
-//   }
-// });
+document.addEventListener('visibilitychange', function () {
+  if (!document.hidden) {
+    // tab was just focused, get the latynka translation mode and see if it changed
+    loadLatynkaTranslationMode(function (newLatynkaTranslationMode) {
+      if (latynkaTranslationMode != newLatynkaTranslationMode) {
+        // it changed... reload the page
+        window.location.reload();
+      }
+    });
+  }
+});
 
