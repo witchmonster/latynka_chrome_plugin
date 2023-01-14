@@ -374,16 +374,3 @@ loadLatynkaTranslationMode(function (newLatynkaTranslationMode) {
     return translateAll();
   }
 });
-
-document.addEventListener('visibilitychange', function () {
-  if (!document.hidden) {
-    // tab was just focused, get the latynka translation mode and see if it changed
-    loadLatynkaTranslationMode(function (newLatynkaTranslationMode) {
-      if (latynkaTranslationMode != newLatynkaTranslationMode) {
-        // it changed... reload the page
-        window.location.reload();
-      }
-    });
-  }
-});
-
